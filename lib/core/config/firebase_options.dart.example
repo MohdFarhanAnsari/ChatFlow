@@ -1,0 +1,61 @@
+// File: lib/core/config/firebase_options.dart.example
+// Template configuration file for Firebase.
+//
+// To configure Firebase for live cloud services:
+// 1. Create a Firebase project in the Firebase Console (https://console.firebase.google.com).
+// 2. Run `flutterfire configure` to generate your real `firebase_options.dart`,
+//    OR copy this file to `lib/core/config/firebase_options.dart` and insert your credentials.
+//
+// IMPORTANT: NEVER commit `firebase_options.dart` or `google-services.json` to version control.
+
+import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, kIsWeb, TargetPlatform;
+
+/// Default [FirebaseOptions] template for ChatFlow.
+class DefaultFirebaseOptions {
+  static FirebaseOptions get currentPlatform {
+    if (kIsWeb) {
+      return web;
+    }
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.android:
+        return android;
+      case TargetPlatform.iOS:
+        return ios;
+      default:
+        throw UnsupportedError(
+          'DefaultFirebaseOptions are not supported for this platform.',
+        );
+    }
+  }
+
+  // Template for Android platform (replace with your Firebase project credentials)
+  static const FirebaseOptions android = FirebaseOptions(
+    apiKey: 'AIzaSyFakePlaceholderAndroidKey0000000',
+    appId: '1:000000000000:android:0000000000000000000000',
+    messagingSenderId: '000000000000',
+    projectId: 'chatflow-fake-placeholder',
+    storageBucket: 'chatflow-fake-placeholder.firebasestorage.app',
+  );
+
+  // Template for iOS platform (replace if configuring iOS)
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyFakePlaceholderIOSKey00000000000',
+    appId: '1:000000000000:ios:0000000000000000000000',
+    messagingSenderId: '000000000000',
+    projectId: 'chatflow-fake-placeholder',
+    storageBucket: 'chatflow-fake-placeholder.firebasestorage.app',
+    iosBundleId: 'com.chatflow.chatflow',
+  );
+
+  // Template for Web platform (replace if configuring Web)
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyFakePlaceholderWebKey00000000000',
+    appId: '1:000000000000:web:0000000000000000000000',
+    messagingSenderId: '000000000000',
+    projectId: 'chatflow-fake-placeholder',
+    authDomain: 'chatflow-fake-placeholder.firebaseapp.com',
+    storageBucket: 'chatflow-fake-placeholder.firebasestorage.app',
+  );
+}

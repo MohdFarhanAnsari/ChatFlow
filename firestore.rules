@@ -1,0 +1,73 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null && request.auth.uid != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isParticipant(conversationData) {
+      return isAuthenticated() &&
+        (request.auth.uid in conversationData.participantIds);
+    }
+
+    // User profiles collection
+    // - Any authenticated user can read public user profile data (for search and discovery)
+    // - Only the owner can create or update their own profile document
+    // - Users CANNOT modify or impersonate other users' profiles
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId) &&
+        request.resource.data.displayName is string &&
+        request.resource.data.displayName.size() >= 2;
+      allow update: if isOwner(userId) &&
+        (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['uid', 'createdAt']));
+      allow delete: if false; // User accounts are deleted via Firebase Admin or Auth cascade
+    }
+
+    // Conversations collection
+    // - Only participants of a conversation can read it
+    // - A conversation can only be created if the creator is in participantIds
+    // - Updates allowed only if participant (e.g. updating unread counts or lastMessage)
+    match /conversations/{conversationId} {
+      allow read: if isAuthenticated() && isParticipant(resource.data);
+      allow create: if isAuthenticated() &&
+        (request.auth.uid in request.resource.data.participantIds) &&
+        request.resource.data.participantIds.size() == 2;
+      allow update: if isAuthenticated() &&
+        (isParticipant(resource.data) || isParticipant(request.resource.data));
+      allow delete: if false;
+
+      // Messages subcollection
+      // - Only conversation participants can read messages
+      // - Only conversation participants can create messages
+      // - The senderId of a new message MUST match the authenticated user
+      // - Users can only delete (soft-delete) their own sent messages
+      // - Participants can update message reactions and read receipts
+      match /messages/{messageId} {
+        allow read: if isAuthenticated() &&
+          (request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participantIds);
+
+        allow create: if isAuthenticated() &&
+          request.resource.data.senderId == request.auth.uid &&
+          (request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participantIds) &&
+          (request.resource.data.text is string || request.resource.data.mediaUrl is string);
+
+        allow update: if isAuthenticated() &&
+          (request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participantIds) &&
+          // Either updating reactions/readBy OR sender soft-deleting
+          (
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reactions', 'readBy', 'status']) ||
+            (resource.data.senderId == request.auth.uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isDeleted', 'text', 'mediaUrl']))
+          );
+
+        allow delete: if false; // Enforce soft-delete semantics for auditability
+      }
+    }
+  }
+}

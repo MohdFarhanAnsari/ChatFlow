@@ -1,0 +1,35 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isAuthenticated() {
+      return request.auth != null && request.auth.uid != null;
+    }
+
+    function isImageFile() {
+      return request.resource.contentType.matches('image/(jpeg|png|webp|gif)');
+    }
+
+    // Chat media files
+    match /chat_images/{conversationId}/{fileName} {
+      // Must be authenticated to download conversation media
+      allow read: if isAuthenticated();
+
+      // Uploads restricted to authenticated users, images only, max 10MB
+      allow write: if isAuthenticated() &&
+        isImageFile() &&
+        request.resource.size <= 10 * 1024 * 1024;
+    }
+
+    // User profile avatars
+    match /profile_avatars/{userId}/{fileName} {
+      allow read: if isAuthenticated();
+
+      // Only the profile owner can upload or overwrite their own avatar
+      allow write: if isAuthenticated() &&
+        request.auth.uid == userId &&
+        isImageFile() &&
+        request.resource.size <= 5 * 1024 * 1024;
+    }
+  }
+}

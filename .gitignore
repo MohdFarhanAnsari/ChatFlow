@@ -1,0 +1,80 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IDE and Editor Files
+*.iml
+*.ipr
+*.iws
+.idea/
+.vscode/
+.metadata
+
+# Environment and Secret Files
+.env
+.env.*
+*.env
+*.local
+credentials.json
+secrets.json
+
+# Flutter and Dart Build Artifacts
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+build/
+/coverage/
+
+# Symbolication and Obfuscation
+app.*.symbols
+app.*.map.json
+
+# Android Studio and Gradle Artifacts
+/android/app/debug
+/android/app/profile
+/android/app/release
+.gradle/
+**/android/.gradle/
+android/local.properties
+**/local.properties
+
+# Android Keystores and Signing Secrets
+key.properties
+**/key.properties
+**/*.keystore
+**/*.jks
+**/*.p12
+**/*.pfx
+
+# Firebase Configuration and Secrets (DO NOT COMMIT)
+android/app/google-services.json
+**/google-services.json
+ios/Runner/GoogleService-Info.plist
+**/GoogleService-Info.plist
+lib/core/config/firebase_options.dart
+**/firebase_options.dart
+
+# Explicitly track safe example configuration templates
+!android/app/google-services.json.example
+!lib/core/config/firebase_options.dart.example
+!*.example
+
+# Widget Preview related
+.widget_preview/
